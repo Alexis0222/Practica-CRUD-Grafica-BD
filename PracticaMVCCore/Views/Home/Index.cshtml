@@ -1,0 +1,167 @@
+﻿@model List<PracticaMVCCore.Models.Empleado>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h5>Lista de Empleados</h5>
+  </div>
+  <div class="card-body">
+    <a  class="btn btn-success btn-sm" asp-action="Empleado_Detalle" asp-controller="Home" asp-route-idEmpleado="0">Crear Nuevo</a>
+    <hr />
+    <table class="table table-light table-striped">
+
+        <thead>
+            <tr>
+                <th>Nombre Empleado</th>
+                <th>Correo</th>
+                <th>Telefono</th>
+                <th>Cargo</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.NombreCompleto</td>
+                    <td>@item.Correo</td>
+                    <td>@item.Telefono</td>
+                    <td>@item.oCargo.Descripcion</td>
+                    <td>
+                         <a  class="btn btn-primary btn-sm" asp-action="Empleado_Detalle" asp-controller="Home" asp-route-idEmpleado="@item.IdEmpleado">Editar</a>
+                         <a  class="btn btn-danger btn-sm" asp-action="Eliminar" asp-controller="Home" asp-route-idEmpleado="@item.IdEmpleado" >Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-6">
+    <div class="card"><div class="card-header">Grafico de Dona</div>
+      <div class="card-body">
+        <h5 class="card-title">Cantidad de cargos</h5>
+        <br />
+        <canvas id="chartCargos" style="max-height:250px"></canvas>
+    
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card"> <div class="card-header">Grafico de pie </div>
+      <div class="card-body">
+        <h5 class="card-title">Cantidad de cargos</h5>
+        <br />
+       <canvas id="chartCargosPie" style="max-height:250px"></canvas>
+       
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts{
+    <script>
+        function ResumenEmpleadosCargoDona(){
+            fetch("Home/ResumenEmpleadosCargoDona")
+            .then((response) => {
+                return response.ok? response.json() : Promise.reject(response);
+            })
+            .then((dataJson) => {
+            
+                console.log(dataJson)
+                const labels= dataJson.map((item)=>{return item.cargo})
+                const values= dataJson.map((item)=>{return item.cantidad})
+                console.log(labels)
+                console.log(values)
+           
+                const data = {
+                  labels: labels,
+                  datasets: [{
+                    label: 'Cantidad',
+                    data: values,
+                    backgroundColor: [
+                      'rgb(255, 99, 132)',
+                      'rgb(54, 162, 235)',
+                      'rgb(255, 205, 86)',
+                      "#01AF40"
+                    ],
+                    hoverOffset: 4
+                  }]
+                };
+
+
+                const config = {
+                  type: 'doughnut',
+                  data: data,
+                };
+
+
+                const canvasDona = document.getElementById("chartCargos");
+
+                const graficoDona = new Chart(canvasDona,config)
+            
+            }).catch((error) => {
+                console.log("error")
+            
+            })
+        }
+            function ResumenEmpleadosCargoPie(){
+            fetch("Home/ResumenEmpleadosCargoPie")
+            .then((response) => {
+                return response.ok? response.json() : Promise.reject(response);
+            })
+            .then((dataJson) => {
+            
+                console.log(dataJson)
+                const labels= dataJson.map((item)=>{return item.cargo})
+                const values= dataJson.map((item)=>{return item.cantidad})
+                console.log(labels)
+                console.log(values)
+
+                const data = {
+                  labels: labels,
+                  datasets: [{
+                    label: 'Cantidad',
+                    data: values,
+                    backgroundColor: [
+                      'rgb(255, 99, 132)',
+                      'rgb(54, 162, 235)',
+                      'rgb(255, 205, 86)',
+                      "#01AF40"
+                    ],
+                    hoverOffset: 4
+                  }]
+                };
+
+
+                const config = {
+                  type: 'pie',
+                  data: data,
+                };
+
+
+                const canvasPie = document.getElementById("chartCargosPie");
+
+                const graficoPie = new Chart(canvasPie,config)
+            
+            }).catch((error) => {
+                console.log("error")
+            
+            })
+        }
+        
+    $(document).ready(()=>{
+        ResumenEmpleadosCargoDona(),
+        ResumenEmpleadosCargoPie()
+    })
+    </script>
+}
